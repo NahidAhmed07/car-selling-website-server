@@ -23,7 +23,7 @@ async function run() {
     const productCollection = database.collection("products");
 
     app.get("/products", async (req, res) => {
-      console.log("request listening to server");
+      console.log("request listening to to server");
       const result = await productCollection.find().toArray();
       res.send(result);
     });
