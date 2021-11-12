@@ -170,17 +170,31 @@ async function run() {
       }
     });
 
-    app.get("/admin", verifyToken, async (req, res) => {
-      const decodedEmail = req.decodedEmail;
+    app.get("/admin", async (req, res) => {
       const email = req.query.email;
-      if (decodedEmail === email) {
-        const user = await usersCollection.findOne({ email: email });
-        if (user.role === "admin") {
-          res.json({ isAdmin: true });
-        }
+      const user = await usersCollection.findOne({ email: email });
+      if (user.role === "admin") {
+        res.json({ isAdmin: true });
       } else {
         res.json({ isAdmin: false });
       }
+    });
+
+    // delete product
+    app.delete("/product", async (req, res) => {
+      const id = req.query.id;
+      const query = { _id: ObjectId(id) };
+      const result = await productsCollection.deleteOne(query);
+      res.json(result);
+    });
+
+    app.put("/product", async (req, res) => {
+      const id = req.query.id;
+      const newData = req.body;
+      const filter = { _id: ObjectId(id) };
+      const option = { upsert: true };
+
+      res.json(id);
     });
   } finally {
     // await client.close()
