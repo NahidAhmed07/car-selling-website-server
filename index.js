@@ -42,6 +42,7 @@ async function run() {
     const usersCollection = database.collection("users");
     const productsCollection = database.collection("products");
     const ordersCollection = database.collection("orders");
+    const reviewCollection = database.collection("reviews");
 
     // get all product
     app.get("/product/all", async (req, res) => {
@@ -67,6 +68,35 @@ async function run() {
       } else {
         res.status(401).json({ message: "unathorize User" });
       }
+    });
+
+    // delete single order
+    app.delete("/order", async (req, res) => {
+      const id = req.query.id;
+      const query = { _id: ObjectId(id) };
+      const result = await ordersCollection.deleteOne(query);
+      res.json(result);
+    });
+
+    // get all order or admin
+    app.get("/order", async (req, res) => {
+      const result = await ordersCollection.find({}).toArray();
+      res.json(result);
+    });
+    // update order status
+    app.put("/order", async (req, res) => {
+      const id = req.query.id;
+      const filter = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: { status: "shipped" },
+      };
+      const result = await ordersCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+      res.json(result);
     });
 
     // get product for home page
@@ -104,6 +134,53 @@ async function run() {
       const updateDoc = { $set: user };
       const result = await usersCollection.updateOne(filter, updateDoc, option);
       res.json(result);
+    });
+
+    // make a review api
+    app.post("/review", async (req, res) => {
+      const data = req.body;
+      const result = await reviewCollection.insertOne(data);
+      res.json(result);
+    });
+    // get all review
+    app.get("/review", async (req, res) => {
+      const result = await reviewCollection.find({}).toArray();
+      res.json(result);
+    });
+
+    // add a admin
+    app.post("/addAdmin", verifyToken, async (req, res) => {
+      const email = req.query.email;
+      const adderEmail = req.decodedEmail;
+      if (adderEmail) {
+        const adderInfo = await usersCollection.findOne({ email: adderEmail });
+        if (adderInfo.role === "admin") {
+          const filter = { email: email };
+          const option = { upsert: true };
+          const updateDoc = { $set: { role: "admin" } };
+          const result = await usersCollection.updateOne(
+            filter,
+            updateDoc,
+            option
+          );
+          res.json(result);
+        }
+      } else {
+        res.status(401).json({ message: "unAthorize user" });
+      }
+    });
+
+    app.get("/admin", verifyToken, async (req, res) => {
+      const decodedEmail = req.decodedEmail;
+      const email = req.query.email;
+      if (decodedEmail === email) {
+        const user = await usersCollection.findOne({ email: email });
+        if (user.role === "admin") {
+          res.json({ isAdmin: true });
+        }
+      } else {
+        res.json({ isAdmin: false });
+      }
     });
   } finally {
     // await client.close()
