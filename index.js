@@ -192,9 +192,15 @@ async function run() {
       const id = req.query.id;
       const newData = req.body;
       const filter = { _id: ObjectId(id) };
+      delete newData._id;
       const option = { upsert: true };
-
-      res.json(id);
+      const updateDoc = { $set: newData };
+      const result = await productsCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+      res.json(result);
     });
   } finally {
     // await client.close()
