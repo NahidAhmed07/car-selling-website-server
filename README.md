@@ -25,6 +25,8 @@
 - Customer Review Systems.
 - Option for Admin to Add a New Product.
 - Implement the Firebase Authentication system.
+- Create new user with email and password
+- Secure API using JWT Token
 
 ## uses of This Website
 
