@@ -43,6 +43,8 @@ async function run() {
     const productsCollection = database.collection("products");
     const ordersCollection = database.collection("orders");
     const reviewCollection = database.collection("reviews");
+    const topCarCollection = database.collection("topCar");
+    const BlogCollection = database.collection("blog");
 
     // get all product
     app.get("/product/all", async (req, res) => {
@@ -188,6 +190,7 @@ async function run() {
       res.json(result);
     });
 
+    //  update product
     app.put("/product", async (req, res) => {
       const id = req.query.id;
       const newData = req.body;
@@ -201,6 +204,18 @@ async function run() {
         option
       );
       res.json(result);
+    });
+
+    // top car api
+    app.get("/topCar", async (req, res) => {
+      const result = await topCarCollection.find({}).toArray();
+      res.send(result);
+    });
+
+    // get all blog post
+    app.get("/blog", async (req, res) => {
+      const result = await BlogCollection.find({}).toArray();
+      res.send(result);
     });
   } finally {
     // await client.close()
