@@ -66,7 +66,11 @@ async function run() {
       if (decodedEmail) {
         const query = { email: email };
         const result = await ordersCollection.find(query).toArray();
-        res.send(result);
+        if (result.length > 0) {
+          res.send(result);
+        } else {
+          res.json({ notFount: true });
+        }
       } else {
         res.status(401).json({ message: "unathorize User" });
       }
